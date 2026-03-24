@@ -1,0 +1,120 @@
+{% extends 'PRTN/base.html' %}
+{% load static %}
+
+{% block title %}Puerto Rico Talent Network — Connecting Talent with Opportunity{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero__bg"></div>
+    <div class="hero__content">
+        <p class="hero__eyebrow">Puerto Rico Talent Network</p>
+        <h1 class="hero__title">Where exceptional talent meets<br><em>island opportunity.</em></h1>
+        <p class="hero__subtitle">We connect outstanding professionals with companies building and hiring in Puerto Rico — strengthening the island's growing business and technology ecosystem.</p>
+        <div class="hero__actions">
+            <a href="{% url 'join_the_network' %}" class="btn btn--primary">Join the Network</a>
+            <a href="{% url 'about_us' %}" class="btn btn--outline">Learn More</a>
+        </div>
+    </div>
+    <div class="hero__scroll-hint">
+        <span>Scroll</span>
+        <div class="hero__scroll-line"></div>
+    </div>
+</section>
+
+<!-- Mission Strip -->
+<section class="strip">
+    <div class="strip__inner">
+        <p class="strip__text">Relationship-driven &bull; Long-term partnerships &bull; Puerto Rico & diaspora &bull; Business & tech ecosystem</p>
+    </div>
+</section>
+
+<!-- Two Audiences Section -->
+<section class="audiences">
+    <div class="audiences__inner">
+        <div class="section-header fade-up">
+            <p class="section-label">Who We Serve</p>
+            <h2 class="section-title">Built for both sides of the hiring equation.</h2>
+        </div>
+
+        <div class="audiences__grid">
+            <!-- For Companies -->
+            <div class="audience-card fade-up">
+                <div class="audience-card__icon">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="6" y="14" width="36" height="28" rx="3" stroke="currentColor" stroke-width="2.5"/>
+                        <path d="M16 14V10C16 7.79086 17.7909 6 20 6H28C30.2091 6 32 7.79086 32 10V14" stroke="currentColor" stroke-width="2.5"/>
+                        <line x1="6" y1="26" x2="42" y2="26" stroke="currentColor" stroke-width="2.5"/>
+                        <rect x="20" y="22" width="8" height="8" rx="1" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3 class="audience-card__title">For Companies</h3>
+                <p class="audience-card__text">We partner with organizations and act as an extension of their talent team — attracting exceptional professionals who will be key to scaling operations in Puerto Rico.</p>
+                <ul class="audience-card__list">
+                    <li>Strategic sourcing across Puerto Rico and diaspora networks</li>
+                    <li>Broad, diverse talent pools unlocked through deep relationships</li>
+                    <li>Long-term partnership approach, not transactional placement</li>
+                </ul>
+                <a href="{% url 'join_the_network' %}" class="audience-card__link">Partner with us &rarr;</a>
+            </div>
+
+            <!-- For Professionals -->
+            <div class="audience-card audience-card--alt fade-up">
+                <div class="audience-card__icon">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="24" cy="16" r="9" stroke="currentColor" stroke-width="2.5"/>
+                        <path d="M8 42C8 34.268 14.268 28 22 28H26C33.732 28 40 34.268 40 42" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M30 14L34 18L42 10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+                    </svg>
+                </div>
+                <h3 class="audience-card__title">For Professionals</h3>
+                <p class="audience-card__text">We engage professionals in Puerto Rico and across the diaspora — connecting them with the right opportunity to advance their career on the island.</p>
+                <ul class="audience-card__list">
+                    <li>Market insights into growing sectors and career pathways</li>
+                    <li>Access to Puerto Rico's business and tech ecosystem</li>
+                    <li>Personalized career alignment, not mass job boards</li>
+                </ul>
+                <a href="{% url 'join_the_network' %}" class="audience-card__link">Explore opportunities &rarr;</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why PRTN -->
+<section class="why">
+    <div class="why__inner">
+        <div class="section-header fade-up">
+            <p class="section-label">Our Approach</p>
+            <h2 class="section-title">Recruiting grounded in relationships — not transactions.</h2>
+        </div>
+        <div class="why__grid fade-up">
+            <div class="why__item">
+                <span class="why__num">01</span>
+                <h4>Deep Island Roots</h4>
+                <p>We know Puerto Rico — its people, its industries, and the unique dynamics of building a career or company here.</p>
+            </div>
+            <div class="why__item">
+                <span class="why__num">02</span>
+                <h4>Diaspora Reach</h4>
+                <p>Our sourcing extends beyond the island to professionals in the diaspora who are ready to contribute to Puerto Rico's growth.</p>
+            </div>
+            <div class="why__item">
+                <span class="why__num">03</span>
+                <h4>Long-Term Alignment</h4>
+                <p>We work closely with both companies and candidates to ensure strong fit — supporting lasting success for everyone involved.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="cta__inner fade-up">
+        <h2 class="cta__title">Ready to build something<br>exceptional in Puerto Rico?</h2>
+        <p class="cta__text">Whether you're a company looking to scale or a professional seeking your next opportunity, we'd love to connect.</p>
+        <a href="{% url 'join_the_network' %}" class="btn btn--primary btn--lg">Join the Network</a>
+    </div>
+</section>
+
+{% endblock %}

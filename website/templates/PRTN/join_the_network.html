@@ -1,0 +1,178 @@
+{% extends 'PRTN/base.html' %}
+{% load static %}
+
+{% block title %}Join the Network — Puerto Rico Talent Network{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<section class="page-hero">
+    <div class="page-hero__inner">
+        <p class="section-label">Join the Network</p>
+        <h1 class="page-hero__title">Tell us about yourself — and let's find the <em>right fit.</em></h1>
+    </div>
+</section>
+
+<!-- Form Toggle Section -->
+<section class="join">
+    <div class="join__inner">
+        {% if messages %}
+        <div class="join__success fade-up visible">
+            {% for message in messages %}
+            <div class="success-banner">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#059669"/><path d="M6 10.5L8.5 13L14 7.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <p>{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="join__toggle fade-up">
+            <button class="toggle-btn toggle-btn--active" data-target="professional">I'm a Professional</button>
+            <button class="toggle-btn" data-target="company">I'm a Company</button>
+        </div>
+
+        <!-- Professional Form -->
+        <div class="join__form-wrap fade-up" id="professional">
+            <div class="join__form-intro">
+                <h2>For Professionals</h2>
+                <p>We engage professionals in Puerto Rico and the diaspora and connect them with opportunities that align with their career ambitions. Share a bit about yourself and we'll be in touch.</p>
+            </div>
+            <form class="form" method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="professional">
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="pro_first">First Name</label>
+                        <input type="text" id="pro_first" name="first_name" required>
+                    </div>
+                    <div class="form__group">
+                        <label for="pro_last">Last Name</label>
+                        <input type="text" id="pro_last" name="last_name" required>
+                    </div>
+                </div>
+                <div class="form__group">
+                    <label for="pro_email">Email</label>
+                    <input type="email" id="pro_email" name="email" required>
+                </div>
+                <div class="form__group">
+                    <label for="pro_phone">Phone <span class="form__optional">(optional)</span></label>
+                    <input type="tel" id="pro_phone" name="phone">
+                </div>
+                <div class="form__group">
+                    <label for="pro_linkedin">LinkedIn Profile</label>
+                    <input type="url" id="pro_linkedin" name="linkedin" placeholder="https://linkedin.com/in/...">
+                </div>
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="pro_location">Current Location</label>
+                        <input type="text" id="pro_location" name="location" placeholder="e.g. San Juan, PR">
+                    </div>
+                    <div class="form__group">
+                        <label for="pro_field">Area of Expertise</label>
+                        <select id="pro_field" name="field">
+                            <option value="">Select one...</option>
+                            <option value="technology">Technology / Engineering</option>
+                            <option value="finance">Finance / Accounting</option>
+                            <option value="operations">Operations / Supply Chain</option>
+                            <option value="marketing">Marketing / Growth</option>
+                            <option value="sales">Sales / Business Development</option>
+                            <option value="hr">People / HR</option>
+                            <option value="legal">Legal / Compliance</option>
+                            <option value="executive">Executive Leadership</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form__group">
+                    <label for="pro_message">Anything else you'd like us to know? <span class="form__optional">(optional)</span></label>
+                    <textarea id="pro_message" name="message" rows="4" placeholder="Your career goals, what excites you about Puerto Rico, etc."></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary btn--lg btn--full">Submit</button>
+            </form>
+        </div>
+
+        <!-- Company Form -->
+        <div class="join__form-wrap fade-up" id="company" style="display: none;">
+            <div class="join__form-intro">
+                <h2>For Companies</h2>
+                <p>We partner with companies committed to building in Puerto Rico. Tell us about your organization and hiring needs, and we'll reach out to explore a partnership.</p>
+            </div>
+            <form class="form" method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="company">
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="co_name">Company Name</label>
+                        <input type="text" id="co_name" name="company_name" required>
+                    </div>
+                    <div class="form__group">
+                        <label for="co_website">Company Website</label>
+                        <input type="url" id="co_website" name="website" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="co_contact">Your Name</label>
+                        <input type="text" id="co_contact" name="contact_name" required>
+                    </div>
+                    <div class="form__group">
+                        <label for="co_title">Your Title</label>
+                        <input type="text" id="co_title" name="title">
+                    </div>
+                </div>
+                <div class="form__group">
+                    <label for="co_email">Work Email</label>
+                    <input type="email" id="co_email" name="email" required>
+                </div>
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="co_industry">Industry</label>
+                        <select id="co_industry" name="industry">
+                            <option value="">Select one...</option>
+                            <option value="tech">Technology</option>
+                            <option value="finance">Financial Services</option>
+                            <option value="pharma">Pharma / Life Sciences</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="professional">Professional Services</option>
+                            <option value="energy">Energy / Sustainability</option>
+                            <option value="real_estate">Real Estate / Development</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form__group">
+                        <label for="co_size">Company Size</label>
+                        <select id="co_size" name="size">
+                            <option value="">Select one...</option>
+                            <option value="1-10">1 – 10</option>
+                            <option value="11-50">11 – 50</option>
+                            <option value="51-200">51 – 200</option>
+                            <option value="201-1000">201 – 1,000</option>
+                            <option value="1000+">1,000+</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form__group">
+                    <label for="co_needs">Tell us about your hiring needs</label>
+                    <textarea id="co_needs" name="hiring_needs" rows="4" placeholder="Roles you're looking to fill, growth plans in Puerto Rico, etc."></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary btn--lg btn--full">Submit</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.target;
+            toggleBtns.forEach(b => b.classList.remove('toggle-btn--active'));
+            btn.classList.add('toggle-btn--active');
+            document.getElementById('professional').style.display = target === 'professional' ? 'block' : 'none';
+            document.getElementById('company').style.display = target === 'company' ? 'block' : 'none';
+        });
+    });
+</script>
+
+{% endblock %}

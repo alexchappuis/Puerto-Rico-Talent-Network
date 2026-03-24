@@ -1,0 +1,85 @@
+{% extends 'PRTN/base.html' %}
+{% load static %}
+
+{% block title %}About Us — Puerto Rico Talent Network{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<section class="page-hero">
+    <div class="page-hero__inner">
+        <p class="section-label">About Us</p>
+        <h1 class="page-hero__title">A talent firm built <em>for</em> Puerto Rico, <em>by</em> people who believe in it.</h1>
+    </div>
+</section>
+
+<!-- Mission -->
+<section class="about-mission">
+    <div class="about-mission__inner">
+        <div class="about-mission__text fade-up">
+            <h2>Our Mission</h2>
+            <p class="about-mission__lead">Puerto Rico Talent Network is a talent search and recruiting firm connecting exceptional professionals with companies building and hiring on the island.</p>
+            <p>We partner with organizations committed to creating outstanding professional opportunities and strengthening Puerto Rico's growing business and technology ecosystem.</p>
+            <p>Our approach is relationship-driven and long-term. We work closely with both companies and candidates to ensure strong alignment — supporting lasting success for everyone we partner with.</p>
+        </div>
+        <div class="about-mission__aside fade-up">
+            <div class="stat-block">
+                <div class="stat-block__item">
+                    <span class="stat-block__label">Focus</span>
+                    <span class="stat-block__value">Puerto Rico & Diaspora</span>
+                </div>
+                <div class="stat-block__item">
+                    <span class="stat-block__label">Sectors</span>
+                    <span class="stat-block__value">Business & Technology</span>
+                </div>
+                <div class="stat-block__item">
+                    <span class="stat-block__label">Approach</span>
+                    <span class="stat-block__value">Relationship-Driven</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values -->
+<section class="values">
+    <div class="values__inner">
+        <div class="section-header fade-up">
+            <p class="section-label">What Drives Us</p>
+            <h2 class="section-title">We believe the right match changes everything.</h2>
+        </div>
+        <div class="values__grid">
+            <div class="value-card fade-up">
+                <span class="value-card__num">01</span>
+                <h3>Alignment Over Volume</h3>
+                <p>We don't flood inboxes. We invest time understanding what makes a company or candidate tick — then make introductions that matter.</p>
+            </div>
+            <div class="value-card fade-up">
+                <span class="value-card__num">02</span>
+                <h3>Island-First Perspective</h3>
+                <p>Puerto Rico isn't just a market for us — it's home. Every placement strengthens the ecosystem we're part of.</p>
+            </div>
+            <div class="value-card fade-up">
+                <span class="value-card__num">03</span>
+                <h3>Diaspora as Strength</h3>
+                <p>We tap into the rich network of Puerto Rican professionals stateside and beyond, connecting them with opportunities to build back home.</p>
+            </div>
+            <div class="value-card fade-up">
+                <span class="value-card__num">04</span>
+                <h3>Long-Term Commitment</h3>
+                <p>Our partnerships don't end at placement. We stay engaged to ensure both sides thrive well beyond the first day.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+    <div class="cta__inner fade-up">
+        <h2 class="cta__title">Let's build Puerto Rico's future — together.</h2>
+        <p class="cta__text">Whether you're hiring or exploring your next career move, we'd love to hear from you.</p>
+        <a href="{% url 'join_the_network' %}" class="btn btn--primary btn--lg">Join the Network</a>
+    </div>
+</section>
+
+{% endblock %}
