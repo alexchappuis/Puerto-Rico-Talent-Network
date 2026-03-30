@@ -4,9 +4,9 @@
 
 /* --- Variables --- */
 :root {
-    --navy:       #1B365D;
-    --navy-deep:  #0F2240;
-    --navy-light: #2A4A7A;
+    --navy:       #0F4C81;
+    --navy-deep:  #0A3459;
+    --navy-light: #1A6099;
     --red:        #C8102E;
     --red-hover:  #A00D24;
     --cream:      #FAF8F5;
@@ -121,11 +121,16 @@ em {
     right: 0;
     z-index: 1000;
     height: var(--nav-height);
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.nav--scrolled {
     background: rgba(253, 252, 250, 0.92);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(27, 54, 93, 0.06);
-    transition: box-shadow 0.3s ease;
+    border-bottom: 1px solid rgba(15, 76, 129, 0.06);
 }
 
 .nav__inner {
@@ -139,8 +144,14 @@ em {
 }
 
 .nav__logo img {
-    height: 44px;
+    height: 60px;
     width: auto;
+    filter: brightness(0) invert(1);
+    transition: filter 0.3s ease;
+}
+
+.nav--scrolled .nav__logo img {
+    filter: none;
 }
 
 .nav__links {
@@ -154,9 +165,17 @@ em {
     font-family: var(--font-body);
     font-size: 0.9rem;
     font-weight: 500;
-    color: var(--navy);
-    transition: color 0.2s ease;
+    color: rgba(255, 255, 255, 0.9);
+    transition: color 0.3s ease;
     position: relative;
+}
+
+.nav--scrolled .nav__links a {
+    color: var(--navy);
+}
+
+.nav--scrolled .nav__links a:not(.btn):hover {
+    color: var(--navy-deep);
 }
 
 .nav__links a:not(.btn)::after {
@@ -192,9 +211,13 @@ em {
 .nav__toggle span {
     width: 24px;
     height: 2px;
-    background: var(--navy);
+    background: var(--white);
     border-radius: 2px;
     transition: all 0.3s ease;
+}
+
+.nav--scrolled .nav__toggle span {
+    background: var(--navy);
 }
 
 .nav__toggle--active span:nth-child(1) {
@@ -294,9 +317,9 @@ em {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse 70% 50% at 75% 30%, rgba(42, 74, 122, 0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 50% at 75% 30%, rgba(15, 76, 129, 0.5) 0%, transparent 70%),
         radial-gradient(ellipse 50% 60% at 20% 80%, rgba(200, 16, 46, 0.08) 0%, transparent 60%),
-        linear-gradient(170deg, var(--navy-deep) 0%, #162D4F 50%, #1B365D 100%);
+        linear-gradient(170deg, var(--navy-deep) 0%, #0D3F6B 50%, #0F4C81 100%);
     opacity: 1;
 }
 
@@ -362,7 +385,7 @@ em {
 }
 
 .hero__title em {
-    color: #F5A0A0;
+    color: #E8666A;
     font-style: italic;
 }
 
@@ -490,7 +513,7 @@ em {
 
 .audience-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 48px rgba(15, 34, 64, 0.08);
+    box-shadow: 0 16px 48px rgba(10, 52, 89, 0.08);
 }
 
 .audience-card__icon {
@@ -677,7 +700,7 @@ em {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse 60% 50% at 80% 40%, rgba(42, 74, 122, 0.4) 0%, transparent 70%);
+        radial-gradient(ellipse 60% 50% at 80% 40%, rgba(15, 76, 129, 0.4) 0%, transparent 70%);
 }
 
 .page-hero__inner {
@@ -699,7 +722,7 @@ em {
 }
 
 .page-hero__title em {
-    color: #F5A0A0;
+    color: #E8666A;
 }
 
 /* ==========================================================================
@@ -805,7 +828,7 @@ em {
 
 .value-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 36px rgba(15, 34, 64, 0.06);
+    box-shadow: 0 12px 36px rgba(10, 52, 89, 0.06);
 }
 
 .value-card__num {
@@ -932,7 +955,7 @@ em {
 .form__group select:focus,
 .form__group textarea:focus {
     border-color: var(--navy-light);
-    box-shadow: 0 0 0 3px rgba(42, 74, 122, 0.1);
+    box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.1);
 }
 
 .form__group input::placeholder,

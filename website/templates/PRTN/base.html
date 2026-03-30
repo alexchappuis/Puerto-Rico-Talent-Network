@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 </head>
 <body>
 
@@ -53,7 +53,7 @@
                 </div>
                 <div class="footer__col">
                     <h4>Connect</h4>
-                    <a href="mailto:info@prtalentnetwork.com">info@prtalentnetwork.com</a>
+                    <a href="mailto:info@prtalentnetwork.com">info@puertoricotalentnetwork.com</a>
                     <a href="https://www.linkedin.com/company/puertoricotalentnetwork/" target="_blank" rel="noopener">LinkedIn</a>
                 </div>
             </div>
@@ -84,6 +84,22 @@
         }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // Transparent nav on hero pages, solid on inner pages
+        const nav = document.querySelector('.nav');
+        const hero = document.querySelector('.hero');
+
+        if (hero) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    nav.classList.add('nav--scrolled');
+                } else {
+                    nav.classList.remove('nav--scrolled');
+                }
+            });
+        } else {
+            nav.classList.add('nav--scrolled');
+        }
     </script>
 
 </body>
