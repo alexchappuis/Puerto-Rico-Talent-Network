@@ -144,7 +144,7 @@ em {
 }
 
 .nav__logo img {
-    height: 60px;
+    height: 44px;
     width: auto;
     filter: brightness(0) invert(1);
     transition: filter 0.3s ease;
@@ -385,7 +385,7 @@ em {
 }
 
 .hero__title em {
-    color: #E8666A;
+    color: var(--red);
     font-style: italic;
 }
 
@@ -606,11 +606,11 @@ em {
 }
 
 .audience-card--alt .audience-card__list li::before {
-    background: #F5A0A0;
+    background: var(--red);
 }
 
 .audience-card--alt .audience-card__link {
-    color: #F5A0A0;
+    color: var(--red);
 }
 
 /* ==========================================================================
@@ -722,7 +722,7 @@ em {
 }
 
 .page-hero__title em {
-    color: #E8666A;
+    color: var(--red);
 }
 
 /* ==========================================================================
@@ -799,11 +799,66 @@ em {
 }
 
 /* ==========================================================================
+   Founder Section
+   ========================================================================== */
+.founder {
+    padding: clamp(4rem, 8vw, 6rem) 0;
+    background: var(--cream);
+}
+
+.founder__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: clamp(2.5rem, 4vw, 4rem);
+    align-items: center;
+}
+
+.founder__photo img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+    aspect-ratio: 4 / 5;
+    box-shadow: 0 12px 40px rgba(10, 52, 89, 0.12);
+}
+
+.founder__text h2 {
+    margin-bottom: 1.25rem;
+}
+
+.founder__text p {
+    color: var(--slate);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 1rem;
+}
+
+.founder__text p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+    .founder__inner {
+        grid-template-columns: 1fr;
+    }
+
+    .founder__photo {
+        max-width: 400px;
+    }
+
+    .founder__photo img {
+        aspect-ratio: 3 / 4;
+    }
+}
+
+/* ==========================================================================
    Values Section
    ========================================================================== */
 .values {
     padding: clamp(4rem, 8vw, 6rem) 0;
-    background: var(--cream);
+    background: var(--warm-white);
 }
 
 .values__inner {
