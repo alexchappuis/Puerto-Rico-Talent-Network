@@ -1,1 +1,1 @@
-web: gunicorn PRTN.wsgi --bind 0.0.0.0:$PORT
+web: python manage.py migrate && python manage.py createsuperuser --noinput || true && gunicorn PRTN.wsgi --bind 0.0.0.0:$PORT
