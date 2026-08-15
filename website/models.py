@@ -46,8 +46,8 @@ class Event(models.Model):
     title = models.CharField(max_length=200, help_text="e.g. 'Palo Alto, CA'")
     slug = models.SlugField(
         unique=True,
-        help_text="URL fragment AND image filename — a matching "
-                  "static/images/<slug>.jpg must exist.",
+        help_text="URL fragment AND image filename. A matching file must exist "
+                  "at static/images/<slug>.jpg",
     )
     subtitle = models.CharField(
         max_length=200, blank=True,
@@ -81,7 +81,7 @@ class Event(models.Model):
 
     @property
     def image_path(self):
-        """Static path for this event's photo — resolved via {% static %}."""
+        """Static path for this event's photo, derived from the slug."""
         return f"images/{self.slug}.jpg"
 
     @property
@@ -98,9 +98,7 @@ class Event(models.Model):
 
 
 class EventRegistration(models.Model):
-    """
-    Intake record for an event RSVP. Immutable, like the submission models.
-    """
+    """Intake record for an event RSVP."""
     STATUS = [
         ('new', 'New'),
         ('reviewed', 'Reviewed'),
