@@ -117,3 +117,7 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'info@puertoricotalentnetwor
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'PRTN <info@puertoricotalentnetwork.com>')
 NOTIFICATION_EMAIL = os.environ.get('NOTIFICATION_EMAIL', 'info@puertoricotalentnetwork.com')
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

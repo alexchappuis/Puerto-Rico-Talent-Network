@@ -1,0 +1,75 @@
+{% extends 'PRTN/base.html' %}
+{% load static %}
+
+{% block title %}Register — {{ event.title }} | Puerto Rico Talent Network{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+    <div class="page-hero__inner">
+        <p class="section-label">Register Interest</p>
+        <h1 class="page-hero__title">{{ event.title }}</h1>
+        <p class="page-hero__text">{{ event.starts_at|date:"l, F j, Y" }}{% if event.venue %} &middot; {{ event.venue }}{% endif %}</p>
+    </div>
+</section>
+
+<section class="join">
+    <div class="join__inner">
+        {% if messages %}
+        <div class="join__success fade-up visible">
+            {% for message in messages %}
+            <div class="success-banner">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#059669"/><path d="M6 10.5L8.5 13L14 7.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <p>{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="join__form-wrap fade-up">
+            <div class="join__form-intro">
+                <h2>Save your spot</h2>
+                <p>Tell us a bit about yourself and we'll follow up with venue details and timing.</p>
+            </div>
+
+            <form class="form" method="post">
+                {% csrf_token %}
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="first">First Name</label>
+                        <input type="text" id="first" name="first_name">
+                    </div>
+                    <div class="form__group">
+                        <label for="last">Last Name</label>
+                        <input type="text" id="last" name="last_name">
+                    </div>
+                </div>
+                <div class="form__group">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" name="email">
+                </div>
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="company">Company <span class="form__optional">(optional)</span></label>
+                        <input type="text" id="company" name="company">
+                    </div>
+                    <div class="form__group">
+                        <label for="role">Role <span class="form__optional">(optional)</span></label>
+                        <input type="text" id="role" name="role">
+                    </div>
+                </div>
+                <div class="form__group">
+                    <label for="linkedin">LinkedIn <span class="form__optional">(optional)</span></label>
+                    <input type="text" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/...">
+                </div>
+                <div class="form__group">
+                    <label for="notes">Anything you'd like us to know? <span class="form__optional">(optional)</span></label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary btn--lg btn--full">Register Interest</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

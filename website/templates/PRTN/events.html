@@ -1,0 +1,93 @@
+{% extends 'PRTN/base.html' %}
+{% load static %}
+
+{% block title %}Events — Puerto Rico Talent Network{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<section class="page-hero">
+    <div class="page-hero__inner">
+        <p class="section-label">Events</p>
+        <h1 class="page-hero__title">Connecting talent. Creating opportunities. <em>Building Puerto Rico.</em></h1>
+        <p class="page-hero__text">Join us at our upcoming events to connect with professionals, leaders, and organizations committed to Puerto Rico's growth.</p>
+    </div>
+</section>
+
+<!-- Events -->
+<section class="events">
+    <div class="events__inner">
+        <div class="section-header fade-up">
+            <p class="section-label">Upcoming Events</p>
+            <h2 class="section-title">Join us in the Bay Area.</h2>
+            <p class="section-intro">We're bringing the Puerto Rico Talent Network to California for two nights of connection, insight, and community.</p>
+        </div>
+
+        <div class="events__grid">
+            {% for event in events %}
+            <article class="event-card fade-up" id="{{ event.slug }}">
+                <div class="event-card__image"
+                     style="background-image: url('{% static event.image_path %}');"
+                     role="img" aria-label="{{ event.city }}{% if event.region %}, {{ event.region }}{% endif %}">
+                    <div class="event-card__date">
+                        <span>{{ event.month_abbr }}</span>
+                        <strong>{{ event.day_number }}</strong>
+                    </div>
+                </div>
+
+                <div class="event-card__body">
+                    <h3 class="event-card__title">{{ event.title }}</h3>
+                    <p class="event-card__type">{{ event.subtitle }}</p>
+                    <p class="event-card__text">{{ event.description }}</p>
+
+                    <div class="event-card__meta">
+                        <div class="meta-row">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                                <path d="M7 3v4M17 3v4M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            </svg>
+                            <span>{{ event.starts_at|date:"l, F j, Y" }}</span>
+                        </div>
+                        <div class="meta-row">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                                <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            </svg>
+                            <span>{% if event.time_display %}{{ event.time_display }}{% else %}{{ event.starts_at|time:"g:i A" }}{% endif %}</span>
+                        </div>
+                        <div class="meta-row">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                                <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            </svg>
+                            <span>
+                                {% if event.venue %}{{ event.venue }}{% else %}{{ event.city }}{% if event.region %}, {{ event.region }}{% endif %}{% endif %}
+                                {% if event.venue_note %}<small class="meta-note">{{ event.venue_note }}</small>{% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    {% if event.registration_open %}
+                    <a href="{% url 'event_register' event.slug %}" class="btn btn--outline">Register Interest</a>
+                    {% else %}
+                    <span class="event-card__closed">Registration closed</span>
+                    {% endif %}
+                </div>
+            </article>
+            {% empty %}
+            <p class="events__empty">No events scheduled right now — check back soon.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+    <div class="cta__inner fade-up">
+        <h2 class="cta__title">Be part of the network.</h2>
+        <p class="cta__text">Whether you're a professional looking for your next opportunity or a company building in Puerto Rico, we'd love to&nbsp;connect.</p>
+        <a href="{% url 'join_the_network' %}" class="btn btn--primary btn--lg">Join the Network</a>
+    </div>
+</section>
+
+{% endblock %}
