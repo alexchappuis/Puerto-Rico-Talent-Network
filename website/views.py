@@ -106,25 +106,30 @@ def event_register(request, slug):
             first_name=request.POST.get('first_name', ''),
             last_name=request.POST.get('last_name', ''),
             email=request.POST.get('email', ''),
+            phone=request.POST.get('phone', ''),
+            linkedin=request.POST.get('linkedin', ''),
+            location=request.POST.get('location', ''),
+            field=request.POST.get('field', ''),
             company=request.POST.get('company', ''),
             role=request.POST.get('role', ''),
-            linkedin=request.POST.get('linkedin', ''),
             notes=request.POST.get('notes', ''),
         )
 
         send_notification(
             subject=f"Event RSVP — {event.title}: {registration.first_name} {registration.last_name}",
             body=(
-                f"Event: {event.title} ({event.starts_at:%b %d, %Y})\n"
+                f"Event: {event.title} ({event.starts_at:%b %d, %Y})\n\n"
                 f"Name: {registration.first_name} {registration.last_name}\n"
                 f"Email: {registration.email}\n"
+                f"Phone: {registration.phone}\n"
+                f"LinkedIn: {registration.linkedin}\n"
+                f"Location: {registration.location}\n"
+                f"Field: {registration.field}\n"
                 f"Company: {registration.company}\n"
                 f"Role: {registration.role}\n"
-                f"LinkedIn: {registration.linkedin}\n"
                 f"Notes: {registration.notes}\n"
             ),
         )
-
         messages.success(request, "You're on the list — we'll be in touch with details.")
         return redirect('event_register', slug=slug)
 

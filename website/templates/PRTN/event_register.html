@@ -5,16 +5,24 @@
 
 {% block content %}
 
+<!-- Page Hero -->
 <section class="page-hero">
     <div class="page-hero__inner">
         <p class="section-label">Register Interest</p>
         <h1 class="page-hero__title">{{ event.title }}</h1>
-        <p class="page-hero__text">{{ event.starts_at|date:"l, F j, Y" }}{% if event.venue %} &middot; {{ event.venue }}{% endif %}</p>
+        <p class="page-hero__text">
+            {{ event.starts_at|date:"l, F j, Y" }}
+            {% if event.time_display %} &middot; {{ event.time_display }}
+            {% else %} &middot; {{ event.starts_at|time:"g:i A" }}{% endif %}
+            {% if event.venue %} &middot; {{ event.venue }}{% endif %}
+        </p>
     </div>
 </section>
 
+<!-- Form -->
 <section class="join">
     <div class="join__inner">
+
         {% if messages %}
         <div class="join__success fade-up visible">
             {% for message in messages %}
@@ -29,43 +37,76 @@
         <div class="join__form-wrap fade-up">
             <div class="join__form-intro">
                 <h2>Save your spot</h2>
-                <p>Tell us a bit about yourself and we'll follow up with venue details and timing.</p>
+                <p>Tell us a bit about yourself and we'll follow up with venue details and timing. This also adds you to the network, so we can reach out about opportunities that fit.</p>
             </div>
 
-            <form class="form" method="post">
+            <form class="form" method="post" action="">
                 {% csrf_token %}
+
                 <div class="form__row">
                     <div class="form__group">
-                        <label for="first">First Name</label>
-                        <input type="text" id="first" name="first_name">
+                        <label for="rsvp_first">First Name</label>
+                        <input type="text" id="rsvp_first" name="first_name">
                     </div>
                     <div class="form__group">
-                        <label for="last">Last Name</label>
-                        <input type="text" id="last" name="last_name">
+                        <label for="rsvp_last">Last Name</label>
+                        <input type="text" id="rsvp_last" name="last_name">
                     </div>
                 </div>
+
                 <div class="form__group">
-                    <label for="email">Email</label>
-                    <input type="text" id="email" name="email">
+                    <label for="rsvp_email">Email</label>
+                    <input type="text" id="rsvp_email" name="email">
                 </div>
+
+                <div class="form__group">
+                    <label for="rsvp_phone">Phone <span class="form__optional">(optional)</span></label>
+                    <input type="text" id="rsvp_phone" name="phone">
+                </div>
+
+                <div class="form__group">
+                    <label for="rsvp_linkedin">LinkedIn Profile</label>
+                    <input type="text" id="rsvp_linkedin" name="linkedin" placeholder="https://linkedin.com/in/...">
+                </div>
+
                 <div class="form__row">
                     <div class="form__group">
-                        <label for="company">Company <span class="form__optional">(optional)</span></label>
-                        <input type="text" id="company" name="company">
+                        <label for="rsvp_location">Current Location</label>
+                        <input type="text" id="rsvp_location" name="location" placeholder="e.g. San Juan, PR">
                     </div>
                     <div class="form__group">
-                        <label for="role">Role <span class="form__optional">(optional)</span></label>
-                        <input type="text" id="role" name="role">
+                        <label for="rsvp_field">Area of Expertise</label>
+                        <select id="rsvp_field" name="field">
+                            <option value="">Select one...</option>
+                            <option value="technology">Technology / Engineering</option>
+                            <option value="finance">Finance / Accounting</option>
+                            <option value="operations">Operations / Supply Chain</option>
+                            <option value="marketing">Marketing / Growth</option>
+                            <option value="sales">Sales / Business Development</option>
+                            <option value="hr">People / HR</option>
+                            <option value="legal">Legal / Compliance</option>
+                            <option value="executive">Executive Leadership</option>
+                            <option value="other">Other</option>
+                        </select>
                     </div>
                 </div>
-                <div class="form__group">
-                    <label for="linkedin">LinkedIn <span class="form__optional">(optional)</span></label>
-                    <input type="text" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/...">
+
+                <div class="form__row">
+                    <div class="form__group">
+                        <label for="rsvp_company">Current Company <span class="form__optional">(optional)</span></label>
+                        <input type="text" id="rsvp_company" name="company">
+                    </div>
+                    <div class="form__group">
+                        <label for="rsvp_role">Current Role <span class="form__optional">(optional)</span></label>
+                        <input type="text" id="rsvp_role" name="role">
+                    </div>
                 </div>
+
                 <div class="form__group">
-                    <label for="notes">Anything you'd like us to know? <span class="form__optional">(optional)</span></label>
-                    <textarea id="notes" name="notes" rows="3"></textarea>
+                    <label for="rsvp_notes">Anything else you'd like us to know? <span class="form__optional">(optional)</span></label>
+                    <textarea id="rsvp_notes" name="notes" rows="4" placeholder="Your career goals, what excites you about Puerto Rico, etc."></textarea>
                 </div>
+
                 <button type="submit" class="btn btn--primary btn--lg btn--full">Register Interest</button>
             </form>
         </div>

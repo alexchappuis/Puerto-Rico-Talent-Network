@@ -1,6 +1,13 @@
 from django.db import models
 from django.utils import timezone
 
+INTAKE_STATUS = [
+    ('new', 'New — needs review'),
+    ('promoted', 'Promoted to new candidate'),
+    ('merged', 'Merged into existing candidate'),
+    ('rejected', 'Rejected'),
+]
+
 
 class ProfessionalSubmission(models.Model):
     first_name = models.CharField(max_length=100)
@@ -12,6 +19,14 @@ class ProfessionalSubmission(models.Model):
     field = models.CharField(max_length=50, blank=True)
     message = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
+
+    candidate = models.ForeignKey(
+        'talent.Candidate', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='submissions',
+        help_text="Set automatically when you promote or merge this signup.",
+    )
+    status = models.CharField(max_length=20, choices=INTAKE_STATUS, default='new')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ['-submitted_at']
@@ -99,11 +114,6 @@ class Event(models.Model):
 
 class EventRegistration(models.Model):
     """Intake record for an event RSVP."""
-    STATUS = [
-        ('new', 'New'),
-        ('reviewed', 'Reviewed'),
-        ('rejected', 'Rejected'),
-    ]
 
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='registrations')
@@ -116,13 +126,20 @@ class EventRegistration(models.Model):
     company = models.CharField(max_length=200, blank=True)
     role = models.CharField(max_length=200, blank=True)
     notes = models.TextField(blank=True)
+    location = models.CharField(max_length=150, blank=True)
+    field = models.CharField(max_length=50, blank=True)
 
     attended = models.BooleanField(
         default=False,
         help_text="Check after the event — RSVP is not attendance.",
     )
 
-    status = models.CharField(max_length=20, choices=STATUS, default='new')
+    candidate = models.ForeignKey(
+        'talent.Candidate', null=True, blank=True,
+        on_delete=models.SET_NULL, related_name='event_registrations',
+        help_text="Set automatically when you promote or merge this RSVP.",
+    )
+    status = models.CharField(max_length=20, choices=INTAKE_STATUS, default='new')
     submitted_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
 
