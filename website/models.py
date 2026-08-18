@@ -87,6 +87,11 @@ class Event(models.Model):
 
     is_published = models.BooleanField(default=False)
     registration_open = models.BooleanField(default=True)
+    duration_minutes = models.PositiveSmallIntegerField(
+        default=120, help_text="Used to set the end time on calendar invites.")
+    address = models.CharField(
+        max_length=300, blank=True,
+        help_text="Full street address — appears in the calendar invite.")
 
     class Meta:
         ordering = ['starts_at']
@@ -150,3 +155,36 @@ class EventRegistration(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} — {self.event.title}"
+    
+    
+
+class EmailLog(models.Model):
+    """
+    One row per email sent to a registrant.
+ 
+    Lets Carmen see who has already received an invite or a reminder, and
+    lets the send screen offer to skip them.
+    """
+ 
+    KINDS = [
+        ('invite', 'Calendar invite'),
+        ('reminder', 'Reminder'),
+    ]
+ 
+    registration = models.ForeignKey(
+        'EventRegistration', on_delete=models.CASCADE, related_name='emails')
+    kind = models.CharField(max_length=20, choices=KINDS)
+    subject = models.CharField(max_length=200, blank=True)
+ 
+    sent_at = models.DateTimeField(auto_now_add=True)
+    succeeded = models.BooleanField(default=True)
+    error = models.TextField(blank=True)
+ 
+    class Meta:
+        ordering = ['-sent_at']
+        verbose_name = 'Email Log'
+        verbose_name_plural = 'Email Log'
+ 
+    def __str__(self):
+        return f"{self.get_kind_display()} → {self.registration}"
+ 

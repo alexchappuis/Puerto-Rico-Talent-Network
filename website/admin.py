@@ -1,19 +1,25 @@
 import csv
 
+from django import forms
 from django.contrib import admin, messages
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
 
 from talent.services import (
     find_matches, promote_submission, promote_rsvp, reject_intake,
 )
 from .models import (
-    ProfessionalSubmission, CompanySubmission, Event, EventRegistration,
+    ProfessionalSubmission, CompanySubmission,
+    Event, EventRegistration, EmailLog,
+)
+from .notifications import (
+    send_blast, default_subject, default_body, render_message,
 )
 
 
-# --------------------------------------------------------------------------
-# Actions and mixins — defined BEFORE the admin classes that reference them
-# --------------------------------------------------------------------------
+# ==========================================================================
+# Shared actions
+# ==========================================================================
 
 def export_to_csv(modeladmin, request, queryset):
     model = queryset.model
@@ -53,8 +59,7 @@ def promote_as_new(modeladmin, request, queryset):
         messages.warning(
             request,
             "Possible duplicates, not promoted — review these individually "
-            "and merge: " + ", ".join(skipped)
-        )
+            "and merge: " + ", ".join(skipped))
     if not created and not skipped:
         messages.info(request, "Nothing to do — those were already reviewed.")
 
@@ -83,9 +88,136 @@ class NewFirstMixin:
         return super().changelist_view(request, extra_context=extra_context)
 
 
-# --------------------------------------------------------------------------
+# ==========================================================================
+# Email blast
+# ==========================================================================
+
+class BlastForm(forms.Form):
+    subject = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'style': 'width:100%'}),
+    )
+    body = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 6, 'style': 'width:100%'}),
+        help_text=(
+            "Your message. Event details, the Google Calendar button, and "
+            "the sign-off are added automatically below it."
+        ),
+    )
+    skip_already_sent = forms.BooleanField(
+        required=False,
+        initial=True,
+        label="Skip anyone who already received this",
+    )
+
+
+def _run_blast(request, registrations, kind, events):
+    """Shared confirmation-and-send flow for both blast kinds."""
+
+    eligible = registrations.exclude(email='')
+    already = set(
+        EmailLog.objects.filter(
+            registration__in=eligible, kind=kind, succeeded=True
+        ).values_list('registration_id', flat=True)
+    )
+
+    if 'apply' in request.POST:
+        form = BlastForm(request.POST)
+        if form.is_valid():
+            targets = eligible
+            if form.cleaned_data['skip_already_sent']:
+                targets = eligible.exclude(pk__in=already)
+
+            sent, failed = send_blast(
+                targets, kind,
+                form.cleaned_data['subject'],
+                form.cleaned_data['body'],
+            )
+
+            if sent:
+                messages.success(request, f"Sent {sent} email(s).")
+            if failed:
+                messages.error(
+                    request,
+                    f"{failed} failed. Check the email log on each "
+                    "registration for details.")
+            if not sent and not failed:
+                messages.info(
+                    request,
+                    "Nobody to send to — everyone already received it.")
+            return redirect(request.get_full_path())
+    else:
+        first_event = events[0] if events else None
+        form = BlastForm(initial={
+            'subject': default_subject(first_event, kind) if first_event else '',
+            'body': default_body(kind),
+        })
+
+    preview_html = ''
+    if events:
+        _, preview_html = render_message(
+            events[0], kind, default_body(kind), 'Alex')
+
+    return render(request, 'admin/event_blast.html', {
+        'title': 'Send calendar invite' if kind == 'invite' else 'Send reminder',
+        'kind': kind,
+        'form': form,
+        'events': events,
+        'total': eligible.count(),
+        'already_count': len(already),
+        'no_email_count': registrations.filter(email='').count(),
+        'preview_html': preview_html,
+        'action_name': request.POST.get('action', ''),
+        'selected': request.POST.getlist(admin.helpers.ACTION_CHECKBOX_NAME),
+        'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
+    })
+
+
+def event_send_invite(modeladmin, request, queryset):
+    registrations = EventRegistration.objects.filter(
+        event__in=queryset).exclude(status='rejected')
+    return _run_blast(request, registrations, 'invite', list(queryset))
+
+event_send_invite.short_description = "Send calendar invite to all registrants"
+
+
+def event_send_reminder(modeladmin, request, queryset):
+    registrations = EventRegistration.objects.filter(
+        event__in=queryset).exclude(status='rejected')
+    return _run_blast(request, registrations, 'reminder', list(queryset))
+
+event_send_reminder.short_description = "Send reminder to all registrants"
+
+
+def reg_send_invite(modeladmin, request, queryset):
+    events = list(Event.objects.filter(registrations__in=queryset).distinct())
+    return _run_blast(request, queryset, 'invite', events)
+
+reg_send_invite.short_description = "Send calendar invite to selected"
+
+
+def reg_send_reminder(modeladmin, request, queryset):
+    events = list(Event.objects.filter(registrations__in=queryset).distinct())
+    return _run_blast(request, queryset, 'reminder', events)
+
+reg_send_reminder.short_description = "Send reminder to selected"
+
+
+class EmailLogInline(admin.TabularInline):
+    model = EmailLog
+    extra = 0
+    fields = ['kind', 'subject', 'sent_at', 'succeeded', 'error']
+    readonly_fields = ['kind', 'subject', 'sent_at', 'succeeded', 'error']
+    can_delete = False
+    verbose_name_plural = 'Emails sent'
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+# ==========================================================================
 # Intake
-# --------------------------------------------------------------------------
+# ==========================================================================
 
 @admin.register(ProfessionalSubmission)
 class ProfessionalSubmissionAdmin(NewFirstMixin, admin.ModelAdmin):
@@ -109,9 +241,9 @@ class CompanySubmissionAdmin(admin.ModelAdmin):
     actions = [export_to_csv]
 
 
-# --------------------------------------------------------------------------
+# ==========================================================================
 # Events
-# --------------------------------------------------------------------------
+# ==========================================================================
 
 class EventRegistrationInline(admin.TabularInline):
     model = EventRegistration
@@ -128,6 +260,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ['is_published', 'registration_open', 'starts_at']
     prepopulated_fields = {'slug': ('title',)}
     inlines = [EventRegistrationInline]
+    actions = [event_send_invite, event_send_reminder]
 
     fieldsets = (
         ('Details', {
@@ -136,8 +269,9 @@ class EventAdmin(admin.ModelAdmin):
                            'looks for static/images/palo-alto.jpg',
         }),
         ('When & Where', {
-            'fields': ('starts_at', 'time_display', 'city', 'region',
-                       'venue', 'venue_note')
+            'fields': ('starts_at', 'time_display', 'duration_minutes',
+                       'city', 'region', 'venue', 'address', 'venue_note'),
+            'description': 'Address and duration are used for the calendar invite.',
         }),
         ('Visibility', {'fields': ('is_published', 'registration_open')}),
     )
@@ -155,4 +289,6 @@ class EventRegistrationAdmin(NewFirstMixin, admin.ModelAdmin):
     search_fields = ['first_name', 'last_name', 'email', 'company', 'location']
     list_editable = ['attended']
     readonly_fields = ['submitted_at', 'reviewed_at', 'candidate']
-    actions = [promote_as_new, mark_rejected, export_to_csv]    
+    inlines = [EmailLogInline]
+    actions = [reg_send_invite, reg_send_reminder,
+               promote_as_new, mark_rejected, export_to_csv]

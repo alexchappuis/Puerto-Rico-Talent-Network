@@ -1,0 +1,85 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div style="max-width: 1080px;">
+    <h1>{{ title }}</h1>
+
+    <div style="background:#f8f8f8;border:1px solid #e0e0e0;border-radius:6px;
+                padding:16px 20px;margin-bottom:24px;font-size:14px;">
+        <div style="margin-bottom:8px;">
+            <strong>Event{{ events|length|pluralize }}:</strong>
+            {% for event in events %}
+                {{ event.title }} — {{ event.starts_at|date:"F j, Y" }}{% if not forloop.last %}; {% endif %}
+            {% endfor %}
+        </div>
+        <div>
+            <strong>{{ total }}</strong> registrant{{ total|pluralize }} with an email address.
+            {% if already_count %}
+                <span style="color:#b45309;">
+                    {{ already_count }} already received this.
+                </span>
+            {% endif %}
+            {% if no_email_count %}
+                <span style="color:#b91c1c;">
+                    {{ no_email_count }} have no email address and will be skipped.
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display:flex; gap:32px; align-items:flex-start; flex-wrap:wrap;">
+
+        <!-- Compose -->
+        <form method="post" style="flex:1 1 420px; min-width:340px;">
+            {% csrf_token %}
+
+            {% for pk in selected %}
+            <input type="hidden" name="{{ action_checkbox_name }}" value="{{ pk }}">
+            {% endfor %}
+            <input type="hidden" name="action" value="{{ action_name }}">
+
+            <div style="margin-bottom:18px;">
+                <label style="display:block;font-weight:600;margin-bottom:5px;">Subject</label>
+                {{ form.subject }}
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="display:block;font-weight:600;margin-bottom:5px;">Message</label>
+                {{ form.body }}
+                <p style="font-size:12px;color:#777;margin-top:5px;">
+                    {{ form.body.help_text }}
+                </p>
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label style="font-size:14px;cursor:pointer;">
+                    {{ form.skip_already_sent }}
+                    {{ form.skip_already_sent.label }}
+                </label>
+            </div>
+
+            <div style="border-top:1px solid #e0e0e0;padding-top:18px;">
+                <input type="submit" name="apply" value="Send emails" class="default">
+                <a href="../" class="button" style="margin-left:8px;">Cancel</a>
+            </div>
+        </form>
+
+        <!-- Preview -->
+        <div style="flex:0 1 460px; min-width:320px;">
+            <div style="font-weight:600;font-size:13px;text-transform:uppercase;
+                        letter-spacing:.08em;color:#777;margin-bottom:8px;">
+                Preview
+            </div>
+            <div style="border:1px solid #e0e0e0;border-radius:6px;
+                        background:#fff;max-height:640px;overflow:auto;">
+                {{ preview_html|safe }}
+            </div>
+            <p style="font-size:12px;color:#777;margin-top:8px;">
+                Shows the default message with a sample name. Each recipient is
+                greeted by their own first name.
+                {% if kind == 'invite' %}A calendar file is attached.{% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
