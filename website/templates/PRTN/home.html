@@ -30,6 +30,37 @@
     </div>
 </section>
 
+<!-- Upcoming Events -->
+<section class="events-banner">
+    <div class="events-banner__inner fade-up">
+        {% if upcoming_events %}
+        <div class="events-banner__text">
+            <p class="events-banner__label">Upcoming Events</p>
+            <h2 class="events-banner__title">
+                {% if upcoming_events|length == 1 %}
+                    Join us in {{ upcoming_events.0.city }}
+                {% else %}
+                    We're coming to {{ upcoming_events.0.city }} and {{ upcoming_events.1.city }}
+                {% endif %}
+            </h2>
+            <p class="events-banner__dates">
+                {% for event in upcoming_events %}
+                    {{ event.starts_at|date:"F j" }}{% if not forloop.last %} &nbsp;·&nbsp; {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+        <a href="{% url 'events' %}" class="btn btn--primary btn--lg">See Upcoming Events</a>
+        {% else %}
+        <div class="events-banner__text">
+            <p class="events-banner__label">Events</p>
+            <h2 class="events-banner__title">Meet the network in person.</h2>
+            <p class="events-banner__dates">We host gatherings for professionals in Puerto Rico and the diaspora.</p>
+        </div>
+        <a href="{% url 'events' %}" class="btn btn--primary btn--lg">See Upcoming Events</a>
+        {% endif %}
+    </div>
+</section>
+
 <!-- Two Audiences Section -->
 <section class="audiences">
     <div class="audiences__inner">
