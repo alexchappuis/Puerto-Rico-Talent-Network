@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from .models import (
     Candidate, Company, Role, Consideration, StageChange, Interaction,
@@ -140,7 +141,7 @@ class CandidateAdmin(admin.ModelAdmin):
     def contact_status(self, obj):
         days = obj.days_since_contact
         if days is None:
-            return format_html('<span style="color:#b91c1c;">Never</span>')
+            return format_html('<span style="color:{};">Never</span>', '#b91c1c')
         if days >= 60:
             colour = '#b91c1c'
         elif days >= 21:
@@ -168,7 +169,7 @@ class CandidateAdmin(admin.ModelAdmin):
         for rsvp in obj.event_registrations.all():
             attended = ' (attended)' if rsvp.attended else ' (RSVP only)'
             rows.append(f'{rsvp.event.title}{attended}')
-        return format_html('<br>'.join(rows)) if rows else 'Added manually'
+        return mark_safe('<br>'.join(rows)) if rows else 'Added manually' 
     intake_history.short_description = 'Came from'
 
 
