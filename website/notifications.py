@@ -60,7 +60,7 @@ def google_calendar_url(event):
     """One-click 'Add to Google Calendar' link."""
     params = {
         'action': 'TEMPLATE',
-        'text': f'PRTN — {event.title}',
+        'text': f'Puerto Rico Talent Network — {event.title}',
         'dates': f'{_utc(event.starts_at)}/{_utc(_end(event))}',
         'details': event.description or event.subtitle,
         'location': getattr(event, 'address', '') or where_text(event),
