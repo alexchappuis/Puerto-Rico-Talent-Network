@@ -13,7 +13,11 @@ from .models import (
 
 def home(request):
     """Landing page view."""
-    return render(request, 'PRTN/home.html')
+    upcoming = Event.objects.filter(
+        is_published=True,
+        starts_at__gte=timezone.now(),
+    )[:2]
+    return render(request, 'PRTN/home.html', {'upcoming_events': upcoming})
 
 
 def about_us(request):
