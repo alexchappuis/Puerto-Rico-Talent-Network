@@ -109,7 +109,7 @@ DEFAULTS = {
     'invite': {
         'subject': "You're registered — {title}",
         'body': (
-            "Thanks for registering. We're glad you'll be joining us.\n\n"
+            "Thanks for registering! We're glad you'll be joining us.\n\n"
             "Full details are below, and you can add the event to your "
             "calendar with one click."
         ),
@@ -118,7 +118,7 @@ DEFAULTS = {
         'subject': "Reminder — {title}",
         'body': (
             "A quick reminder about our upcoming event. We're looking "
-            "forward to seeing you there."
+            "forward to seeing you there!"
         ),
     },
 }
