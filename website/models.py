@@ -1,3 +1,5 @@
+from zoneinfo import ZoneInfo
+
 from django.db import models
 from django.utils import timezone
 
@@ -6,6 +8,14 @@ INTAKE_STATUS = [
     ('promoted', 'Promoted to new candidate'),
     ('merged', 'Merged into existing candidate'),
     ('rejected', 'Rejected'),
+]
+
+TIMEZONES = [
+    ('America/Puerto_Rico', 'Puerto Rico (AST)'),
+    ('America/New_York', 'Eastern (ET)'),
+    ('America/Chicago', 'Central (CT)'),
+    ('America/Denver', 'Mountain (MT)'),
+    ('America/Los_Angeles', 'Pacific (PT)'),
 ]
 
 
@@ -71,15 +81,29 @@ class Event(models.Model):
     description = models.TextField(blank=True)
 
     starts_at = models.DateTimeField()
+    timezone_name = models.CharField(
+        max_length=50,
+        choices=TIMEZONES,
+        default='America/Puerto_Rico',
+        verbose_name='Event timezone',
+        help_text="Where the event happens. Enter the start time as local "
+                  "clock time — 6:00 PM with Pacific selected means 6pm in "
+                  "California.",
+    )
     time_display = models.CharField(
         max_length=100, blank=True,
         help_text="Leave blank to show the time from starts_at. "
                   "Set to 'Time coming soon' while TBD.",
     )
+    duration_minutes = models.PositiveSmallIntegerField(
+        default=120, help_text="Used to set the end time on calendar invites.")
 
     city = models.CharField(max_length=100)
     region = models.CharField(max_length=100, blank=True, help_text="State or territory")
     venue = models.CharField(max_length=200, blank=True)
+    address = models.CharField(
+        max_length=300, blank=True,
+        help_text="Full street address — appears in the calendar invite.")
     venue_note = models.CharField(
         max_length=200, blank=True,
         default="Venue details coming soon",
@@ -87,17 +111,28 @@ class Event(models.Model):
 
     is_published = models.BooleanField(default=False)
     registration_open = models.BooleanField(default=True)
-    duration_minutes = models.PositiveSmallIntegerField(
-        default=120, help_text="Used to set the end time on calendar invites.")
-    address = models.CharField(
-        max_length=300, blank=True,
-        help_text="Full street address — appears in the calendar invite.")
 
     class Meta:
         ordering = ['starts_at']
 
     def __str__(self):
-        return f"{self.title} — {self.starts_at:%b %d, %Y}"
+        return f"{self.title} — {self.local_start:%b %d, %Y}"
+
+    # --- timezone-aware display helpers ---------------------------------
+
+    @property
+    def tz(self):
+        return ZoneInfo(self.timezone_name)
+
+    @property
+    def local_start(self):
+        """Start time as clock time in the event's own timezone."""
+        return self.starts_at.astimezone(self.tz)
+
+    @property
+    def tz_abbr(self):
+        """Short label like PDT or AST, correct for that date."""
+        return self.local_start.strftime('%Z')
 
     @property
     def image_path(self):
@@ -110,11 +145,11 @@ class Event(models.Model):
 
     @property
     def month_abbr(self):
-        return self.starts_at.strftime('%b').upper()
+        return self.local_start.strftime('%b').upper()
 
     @property
     def day_number(self):
-        return self.starts_at.strftime('%d')
+        return self.local_start.strftime('%d')
 
 
 class EventRegistration(models.Model):
@@ -128,11 +163,11 @@ class EventRegistration(models.Model):
     email = models.CharField(max_length=254, blank=True)
     phone = models.CharField(max_length=30, blank=True)
     linkedin = models.CharField(max_length=300, blank=True)
+    location = models.CharField(max_length=150, blank=True)
+    field = models.CharField(max_length=50, blank=True)
     company = models.CharField(max_length=200, blank=True)
     role = models.CharField(max_length=200, blank=True)
     notes = models.TextField(blank=True)
-    location = models.CharField(max_length=150, blank=True)
-    field = models.CharField(max_length=50, blank=True)
 
     attended = models.BooleanField(
         default=False,
@@ -155,36 +190,34 @@ class EventRegistration(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} — {self.event.title}"
-    
-    
+
 
 class EmailLog(models.Model):
     """
     One row per email sent to a registrant.
- 
+
     Lets Carmen see who has already received an invite or a reminder, and
     lets the send screen offer to skip them.
     """
- 
+
     KINDS = [
         ('invite', 'Calendar invite'),
         ('reminder', 'Reminder'),
     ]
- 
+
     registration = models.ForeignKey(
         'EventRegistration', on_delete=models.CASCADE, related_name='emails')
     kind = models.CharField(max_length=20, choices=KINDS)
     subject = models.CharField(max_length=200, blank=True)
- 
+
     sent_at = models.DateTimeField(auto_now_add=True)
     succeeded = models.BooleanField(default=True)
     error = models.TextField(blank=True)
- 
+
     class Meta:
         ordering = ['-sent_at']
         verbose_name = 'Email Log'
         verbose_name_plural = 'Email Log'
- 
+
     def __str__(self):
         return f"{self.get_kind_display()} → {self.registration}"
- 

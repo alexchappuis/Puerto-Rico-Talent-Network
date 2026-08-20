@@ -40,8 +40,9 @@ def _end(event):
 
 def when_text(event):
     if event.time_display:
-        return f"{event.starts_at:%A, %B %-d} · {event.time_display}"
-    return f"{event.starts_at:%A, %B %-d} at {event.starts_at:%-I:%M %p}"
+        return f"{event.local_start:%A, %B %-d} · {event.time_display}"
+    return (f"{event.local_start:%A, %B %-d} at "
+            f"{event.local_start:%-I:%M %p} {event.tz_abbr}")
 
 
 def where_text(event):

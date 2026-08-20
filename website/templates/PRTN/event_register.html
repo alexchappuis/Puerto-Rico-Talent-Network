@@ -11,9 +11,9 @@
         <p class="section-label">Register Interest</p>
         <h1 class="page-hero__title">{{ event.title }}</h1>
         <p class="page-hero__text">
-            {{ event.starts_at|date:"l, F j, Y" }}
+            {{ event.local_start|date:"l, F j, Y" }}
             {% if event.time_display %} &middot; {{ event.time_display }}
-            {% else %} &middot; {{ event.starts_at|time:"g:i A" }}{% endif %}
+            {% else %} &middot; {{ event.local_start|time:"g:i A" }} {{ event.tz_abbr }}{% endif %}
             {% if event.venue %} &middot; {{ event.venue }}{% endif %}
         </p>
     </div>

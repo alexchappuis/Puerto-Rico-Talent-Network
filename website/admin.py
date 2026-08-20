@@ -1,9 +1,11 @@
 import csv
+from zoneinfo import ZoneInfo
 
 from django import forms
 from django.contrib import admin, messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.utils import timezone as dj_timezone
 
 from talent.services import (
     find_matches, promote_submission, promote_rsvp, reject_intake,
@@ -245,6 +247,42 @@ class CompanySubmissionAdmin(admin.ModelAdmin):
 # Events
 # ==========================================================================
 
+class EventAdminForm(forms.ModelForm):
+    """
+    Makes starts_at mean local clock time in the event's own timezone.
+
+    Django stores datetimes in UTC and the admin normally interprets input
+    using settings.TIME_ZONE. This form intercepts both directions so that
+    what Carmen types is what attendees see: type 6:00 PM, pick Pacific,
+    and it means 6pm in California.
+    """
+
+    class Meta:
+        model = Event
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk and instance.starts_at:
+            local = instance.starts_at.astimezone(
+                ZoneInfo(instance.timezone_name))
+            self.initial['starts_at'] = local.replace(tzinfo=None)
+
+    def clean(self):
+        cleaned = super().clean()
+        starts_at = cleaned.get('starts_at')
+        tz_name = cleaned.get('timezone_name')
+
+        if starts_at and tz_name:
+            if dj_timezone.is_aware(starts_at):
+                starts_at = dj_timezone.make_naive(
+                    starts_at, dj_timezone.get_current_timezone())
+            cleaned['starts_at'] = starts_at.replace(tzinfo=ZoneInfo(tz_name))
+
+        return cleaned
+
+
 class EventRegistrationInline(admin.TabularInline):
     model = EventRegistration
     extra = 0
@@ -255,7 +293,8 @@ class EventRegistrationInline(admin.TabularInline):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ['title', 'starts_at', 'city', 'is_published',
+    form = EventAdminForm
+    list_display = ['title', 'local_time_display', 'city', 'is_published',
                     'registration_open', 'rsvp_count']
     list_filter = ['is_published', 'registration_open', 'starts_at']
     prepopulated_fields = {'slug': ('title',)}
@@ -269,12 +308,21 @@ class EventAdmin(admin.ModelAdmin):
                            'looks for static/images/palo-alto.jpg',
         }),
         ('When & Where', {
-            'fields': ('starts_at', 'time_display', 'duration_minutes',
-                       'city', 'region', 'venue', 'address', 'venue_note'),
-            'description': 'Address and duration are used for the calendar invite.',
+            'fields': ('starts_at', 'timezone_name', 'time_display',
+                       'duration_minutes', 'city', 'region', 'venue',
+                       'address', 'venue_note'),
+            'description': 'Enter the start time as local clock time for the '
+                           'city where the event happens, then pick that '
+                           'timezone. Address and duration appear on the '
+                           'calendar invite.',
         }),
         ('Visibility', {'fields': ('is_published', 'registration_open')}),
     )
+
+    def local_time_display(self, obj):
+        return f"{obj.local_start:%b %d, %Y · %-I:%M %p} {obj.tz_abbr}"
+    local_time_display.short_description = 'Starts'
+    local_time_display.admin_order_field = 'starts_at'
 
     def rsvp_count(self, obj):
         return obj.registrations.count()
