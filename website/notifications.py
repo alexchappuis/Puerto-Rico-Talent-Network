@@ -85,7 +85,7 @@ def build_ics(event):
         f'DTSTAMP:{_utc(timezone.now())}',
         f'DTSTART:{_utc(event.starts_at)}',
         f'DTEND:{_utc(_end(event))}',
-        f'SUMMARY:PRTN — {event.title}',
+        f'SUMMARY:Puerto Rico Talent Network — {event.title}',
         f'DESCRIPTION:{description}',
         f'LOCATION:{location}',
         f'ORGANIZER;CN=Puerto Rico Talent Network:mailto:{settings.NOTIFICATION_EMAIL}',
