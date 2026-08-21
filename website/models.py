@@ -118,7 +118,13 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.title} — {self.local_start:%b %d, %Y}"
 
-    # --- timezone-aware display helpers ---------------------------------
+    # ----------------------------------------------------------------------
+    # Timezone-aware display.
+    #
+    # The *_text properties return strings on purpose. Django's template
+    # engine auto-converts aware datetimes to settings.TIME_ZONE (UTC) on
+    # render, which would undo the conversion. Strings pass through untouched.
+    # ----------------------------------------------------------------------
 
     @property
     def tz(self):
@@ -135,13 +141,19 @@ class Event(models.Model):
         return self.local_start.strftime('%Z')
 
     @property
-    def image_path(self):
-        """Static path for this event's photo, derived from the slug."""
-        return f"images/{self.slug}.jpg"
+    def local_date_text(self):
+        """e.g. 'Monday, August 31, 2026' — safe in templates."""
+        return self.local_start.strftime('%A, %B %-d, %Y')
 
     @property
-    def is_upcoming(self):
-        return self.starts_at >= timezone.now()
+    def local_time_text(self):
+        """e.g. '6:00 PM PDT' — safe in templates."""
+        return f"{self.local_start.strftime('%-I:%M %p')} {self.tz_abbr}"
+
+    @property
+    def local_short_date_text(self):
+        """e.g. 'August 31' — safe in templates."""
+        return self.local_start.strftime('%B %-d')
 
     @property
     def month_abbr(self):
@@ -150,6 +162,15 @@ class Event(models.Model):
     @property
     def day_number(self):
         return self.local_start.strftime('%d')
+
+    @property
+    def image_path(self):
+        """Static path for this event's photo, derived from the slug."""
+        return f"images/{self.slug}.jpg"
+
+    @property
+    def is_upcoming(self):
+        return self.starts_at >= timezone.now()
 
 
 class EventRegistration(models.Model):

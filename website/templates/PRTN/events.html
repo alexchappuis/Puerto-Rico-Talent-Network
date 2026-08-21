@@ -46,14 +46,14 @@
                                 <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
                                 <path d="M7 3v4M17 3v4M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8"/>
                             </svg>
-                            <span>{{ event.local_start|date:"l, F j, Y" }}</span>
+                            <span>{{ event.local_date_text }}</span>
                         </div>
                         <div class="meta-row">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
                                 <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8"/>
                             </svg>
-                            <span>{% if event.time_display %}{{ event.time_display }}{% else %}{{ event.local_start|time:"g:i A" }} {{ event.tz_abbr }}{% endif %}</span>
+                            <span>{% if event.time_display %}{{ event.time_display }}{% else %}{{ event.local_time_text }}{% endif %}</span>
                         </div>
                         <div class="meta-row">
                             <svg viewBox="0 0 24 24" aria-hidden="true">

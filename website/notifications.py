@@ -12,17 +12,19 @@ EmailLog so Carmen can see who has already received what.
 
 import logging
 import uuid
+from datetime import timedelta, timezone as dt_timezone
 from urllib.parse import urlencode
-from datetime import timezone as dt_timezone
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 from django.utils.html import escape
-from datetime import timedelta, timezone as dt_timezone
 
 from .models import EmailLog
 
 logger = logging.getLogger(__name__)
+
+ORG_NAME = "Puerto Rico Talent Network"
 
 
 # --------------------------------------------------------------------------
@@ -39,10 +41,10 @@ def _end(event):
 
 
 def when_text(event):
+    """Local clock time in the event's own timezone."""
     if event.time_display:
-        return f"{event.local_start:%A, %B %-d} · {event.time_display}"
-    return (f"{event.local_start:%A, %B %-d} at "
-            f"{event.local_start:%-I:%M %p} {event.tz_abbr}")
+        return f"{event.local_date_text} · {event.time_display}"
+    return f"{event.local_date_text} at {event.local_time_text}"
 
 
 def where_text(event):
@@ -60,7 +62,7 @@ def google_calendar_url(event):
     """One-click 'Add to Google Calendar' link."""
     params = {
         'action': 'TEMPLATE',
-        'text': f'Puerto Rico Talent Network — {event.title}',
+        'text': f'{ORG_NAME} — {event.title}',
         'dates': f'{_utc(event.starts_at)}/{_utc(_end(event))}',
         'details': event.description or event.subtitle,
         'location': getattr(event, 'address', '') or where_text(event),
@@ -77,7 +79,7 @@ def build_ics(event):
     lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
-        'PRODID:-//Puerto Rico Talent Network//Events//EN',
+        f'PRODID:-//{ORG_NAME}//Events//EN',
         'CALSCALE:GREGORIAN',
         'METHOD:PUBLISH',
         'BEGIN:VEVENT',
@@ -85,10 +87,10 @@ def build_ics(event):
         f'DTSTAMP:{_utc(timezone.now())}',
         f'DTSTART:{_utc(event.starts_at)}',
         f'DTEND:{_utc(_end(event))}',
-        f'SUMMARY:Puerto Rico Talent Network — {event.title}',
+        f'SUMMARY:{ORG_NAME} — {event.title}',
         f'DESCRIPTION:{description}',
         f'LOCATION:{location}',
-        f'ORGANIZER;CN=Puerto Rico Talent Network:mailto:{settings.NOTIFICATION_EMAIL}',
+        f'ORGANIZER;CN={ORG_NAME}:mailto:{settings.NOTIFICATION_EMAIL}',
         'STATUS:CONFIRMED',
         'BEGIN:VALARM',
         'TRIGGER:-PT1H',
@@ -109,7 +111,7 @@ DEFAULTS = {
     'invite': {
         'subject': "You're registered — {title}",
         'body': (
-            "Thanks for registering! We're glad you'll be joining us.\n\n"
+            "Thanks for registering. We're glad you'll be joining us.\n\n"
             "Full details are below, and you can add the event to your "
             "calendar with one click."
         ),
@@ -118,7 +120,7 @@ DEFAULTS = {
         'subject': "Reminder — {title}",
         'body': (
             "A quick reminder about our upcoming event. We're looking "
-            "forward to seeing you there!"
+            "forward to seeing you there."
         ),
     },
 }
@@ -149,7 +151,7 @@ def render_message(event, kind, body, first_name=''):
     if address and address != where:
         parts.append(address)
     parts += ["", f"Add to Google Calendar: {cal_url}", "",
-              "— Puerto Rico Talent Network"]
+              f"— {ORG_NAME}"]
     text = "\n".join(parts)
 
     # --- html ---
@@ -185,7 +187,7 @@ def render_message(event, kind, body, first_name=''):
 
   <p style="font-size:13px;color:#9CA3AF;border-top:1px solid #E5E7EB;
             padding-top:16px;margin-top:30px;">
-    Puerto Rico Talent Network
+    {ORG_NAME}
   </p>
 </div>"""
 
@@ -218,6 +220,13 @@ def send_to_registration(registration, kind, subject, body):
             to=[registration.email],
         )
         message.attach_alternative(html, "text/html")
+
+        message.extra_headers = {
+            'Reply-To': settings.NOTIFICATION_EMAIL,
+            'List-Unsubscribe':
+                f'<mailto:{settings.NOTIFICATION_EMAIL}?subject=Unsubscribe>',
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        }
 
         if kind == 'invite':
             message.attach(
