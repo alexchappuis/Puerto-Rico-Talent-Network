@@ -17,13 +17,77 @@
 <!-- Events -->
 <section class="events">
     <div class="events__inner">
-        <div class="section-header fade-up">
-            <p class="section-label">Upcoming Events</p>
-            <h2 class="section-title">Join us in the Bay Area.</h2>
-            <p class="section-intro">We're bringing the Puerto Rico Talent Network to California for two nights of connection, insight, and community.</p>
+
+        {% if not has_any %}
+        <p class="events__empty">No events scheduled right now — check back soon.</p>
+        {% endif %}
+
+        <!-- Featured -->
+        {% for event in featured %}
+        <article class="event-feature fade-up" id="{{ event.slug }}">
+            <div class="event-feature__image"
+                 style="background-image: url('{% static event.image_path %}');"
+                 role="img" aria-label="{{ event.city }}{% if event.region %}, {{ event.region }}{% endif %}">
+                <div class="event-card__date">
+                    <span>{{ event.month_abbr }}</span>
+                    <strong>{{ event.day_number }}</strong>
+                </div>
+            </div>
+
+            <div class="event-feature__body">
+                <p class="event-feature__flag">Featured Event</p>
+                <h2 class="event-feature__title">{{ event.title }}</h2>
+                <p class="event-card__type">{{ event.subtitle }}</p>
+
+                {% if event.featured_note %}
+                <p class="event-feature__note">{{ event.featured_note }}</p>
+                {% endif %}
+
+                <p class="event-feature__text">{{ event.description }}</p>
+
+                <div class="event-card__meta">
+                    <div class="meta-row">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M7 3v4M17 3v4M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        <span>{{ event.local_date_text }}</span>
+                    </div>
+                    <div class="meta-row">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        <span>{% if event.time_display %}{{ event.time_display }}{% else %}{{ event.local_time_text }}{% endif %}</span>
+                    </div>
+                    <div class="meta-row">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                            <circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        <span>
+                            {% if event.venue %}{{ event.venue }}{% else %}{{ event.city }}{% if event.region %}, {{ event.region }}{% endif %}{% endif %}
+                            {% if event.venue_note %}<small class="meta-note">{{ event.venue_note }}</small>{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if event.registration_open %}
+                <a href="{% url 'event_register' event.slug %}" class="btn btn--primary btn--lg">Register Interest</a>
+                {% else %}
+                <span class="event-card__closed">Registration closed</span>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+
+        <!-- The rest -->
+        {% if events %}
+        <div class="section-header section-header--tight fade-up">
+            <h2 class="section-title">{% if featured %}Also coming up{% else %}Upcoming Events{% endif %}</h2>
         </div>
 
-        <div class="events__grid">
+        <div class="events__grid {% if events|length == 1 %}events__grid--single{% endif %}">
             {% for event in events %}
             <article class="event-card fade-up" id="{{ event.slug }}">
                 <div class="event-card__image"
@@ -74,10 +138,10 @@
                     {% endif %}
                 </div>
             </article>
-            {% empty %}
-            <p class="events__empty">No events scheduled right now — check back soon.</p>
             {% endfor %}
         </div>
+        {% endif %}
+
     </div>
 </section>
 

@@ -294,9 +294,10 @@ class EventRegistrationInline(admin.TabularInline):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     form = EventAdminForm
-    list_display = ['title', 'local_time_display', 'city', 'is_published',
-                    'registration_open', 'rsvp_count']
-    list_filter = ['is_published', 'registration_open', 'starts_at']
+    list_display = ['title', 'local_time_display', 'city', 'is_featured',
+                    'is_published', 'registration_open', 'rsvp_count']
+    list_filter = ['is_featured', 'is_published', 'registration_open',
+                   'starts_at']
     prepopulated_fields = {'slug': ('title',)}
     inlines = [EventRegistrationInline]
     actions = [event_send_invite, event_send_reminder]
@@ -316,7 +317,13 @@ class EventAdmin(admin.ModelAdmin):
                            'timezone. Address and duration appear on the '
                            'calendar invite.',
         }),
-        ('Visibility', {'fields': ('is_published', 'registration_open')}),
+        ('Visibility', {
+        'fields': ('is_published', 'registration_open',
+                   'is_featured', 'featured_note'),
+        'description': 'Featuring an event gives it a full-width card at '
+                       'the top of the events page.',
+        
+    }),
     )
 
     def local_time_display(self, obj):

@@ -112,6 +112,19 @@ class Event(models.Model):
     is_published = models.BooleanField(default=False)
     registration_open = models.BooleanField(default=True)
 
+    is_featured = models.BooleanField(
+        default=False,
+        verbose_name='Feature this event',
+        help_text="Featured events appear full-width at the top of the "
+                  "events page. Best used for one event at a time.",
+    )
+    featured_note = models.CharField(
+        max_length=200, blank=True,
+        help_text="Optional line shown only on featured events — e.g. "
+                  "'Panel discussion with leaders from Puerto Rico's tech "
+                  "ecosystem.'",
+    )
+
     class Meta:
         ordering = ['starts_at']
 

@@ -97,7 +97,11 @@ def events(request):
         is_published=True,
         starts_at__gte=timezone.now(),
     )
-    return render(request, 'PRTN/events.html', {'events': upcoming})
+    return render(request, 'PRTN/events.html', {
+        'featured': upcoming.filter(is_featured=True),
+        'events': upcoming.filter(is_featured=False),
+        'has_any': upcoming.exists(),
+    })
 
 
 def event_register(request, slug):
