@@ -45,7 +45,7 @@
             </h2>
             <p class="events-banner__dates">
                 {% for event in upcoming_events %}
-                    {{ event.starts_at|date:"F j" }}{% if not forloop.last %} &nbsp;·&nbsp; {% endif %}
+                    {{ event.local_short_date_text }}{% if not forloop.last %} &nbsp;·&nbsp; {% endif %}
                 {% endfor %}
             </p>
         </div>
