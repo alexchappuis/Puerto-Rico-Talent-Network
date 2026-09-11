@@ -36,12 +36,16 @@ def _utc(dt):
 
 
 def _end(event):
+    if not event.starts_at:
+        return None
     minutes = getattr(event, 'duration_minutes', 120)
     return event.starts_at + timedelta(minutes=minutes)
 
 
 def when_text(event):
-    """Local clock time in the event's own timezone."""
+    """Local clock time, or the TBD message."""
+    if event.date_tbd:
+        return event.local_date_text        # 'Date to be announced'
     if event.time_display:
         return f"{event.local_date_text} · {event.time_display}"
     return f"{event.local_date_text} at {event.local_time_text}"
@@ -59,7 +63,9 @@ def where_text(event):
 
 
 def google_calendar_url(event):
-    """One-click 'Add to Google Calendar' link."""
+    """One-click 'Add to Google Calendar' link. None when the date is TBD."""
+    if not event.can_send_calendar:
+        return None
     params = {
         'action': 'TEMPLATE',
         'text': f'{ORG_NAME} — {event.title}',
@@ -72,10 +78,13 @@ def google_calendar_url(event):
 
 
 def build_ics(event):
-    """iCalendar file for Apple Calendar, Outlook, and anything non-Google."""
+    """iCalendar file. None when the date is TBD."""
+    if not event.can_send_calendar:
+        return None
+ 
     location = getattr(event, 'address', '') or where_text(event)
     description = (event.description or event.subtitle).replace('\n', '\\n')
-
+ 
     lines = [
         'BEGIN:VCALENDAR',
         'VERSION:2.0',
@@ -145,52 +154,61 @@ def render_message(event, kind, body, first_name=''):
     where = where_text(event)
     address = getattr(event, 'address', '')
     cal_url = google_calendar_url(event)
-
+ 
     # --- plain text ---
     parts = [greeting, "", body, "", event.title, when, where]
     if address and address != where:
         parts.append(address)
-    parts += ["", f"Add to Google Calendar: {cal_url}", "",
-              f"— {ORG_NAME}"]
+    if cal_url:
+        parts += ["", f"Add to Google Calendar: {cal_url}"]
+    parts += ["", f"— {ORG_NAME}"]
     text = "\n".join(parts)
-
+ 
     # --- html ---
     address_html = (
         f'<div style="color:#6B7280;font-size:14px;">{escape(address)}</div>'
         if address and address != where else ''
     )
     body_html = escape(body).replace('\n', '<br>')
-
+ 
+    if cal_url:
+        calendar_html = f"""
+  <a href="{cal_url}"
+     style="display:inline-block;background:#0F4C81;color:#ffffff;
+            text-decoration:none;font-size:14px;font-weight:600;
+            padding:11px 22px;border-radius:6px;">Add to Google Calendar</a>
+ 
+  <p style="font-size:12px;color:#9CA3AF;margin-top:10px;">
+    Not using Google Calendar? A calendar file is attached to this email.
+  </p>"""
+    else:
+        calendar_html = """
+  <p style="font-size:14px;color:#6B7280;">
+    We'll send a calendar invite as soon as the date is confirmed.
+  </p>"""
+ 
     html = f"""\
 <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
             max-width:520px;margin:0 auto;padding:32px 24px;color:#1F2937;">
-
+ 
   <p style="font-size:15px;margin-top:0;">{escape(greeting)}</p>
-
+ 
   <p style="font-size:15px;color:#374151;line-height:1.65;">{body_html}</p>
-
+ 
   <div style="border-left:3px solid #C8102E;padding:6px 0 6px 16px;margin:26px 0;">
     <div style="font-size:19px;font-weight:600;color:#0A3459;">{escape(event.title)}</div>
     <div style="font-size:15px;color:#374151;margin-top:6px;">{escape(when)}</div>
     <div style="font-size:15px;color:#374151;">{escape(where)}</div>
     {address_html}
   </div>
-
-  <a href="{cal_url}"
-     style="display:inline-block;background:#0F4C81;color:#ffffff;
-            text-decoration:none;font-size:14px;font-weight:600;
-            padding:11px 22px;border-radius:6px;">Add to Google Calendar</a>
-
-  <p style="font-size:12px;color:#9CA3AF;margin-top:10px;">
-    Not using Google Calendar? A calendar file is attached to this email.
-  </p>
-
+{calendar_html}
+ 
   <p style="font-size:13px;color:#9CA3AF;border-top:1px solid #E5E7EB;
             padding-top:16px;margin-top:30px;">
     {ORG_NAME}
   </p>
 </div>"""
-
+ 
     return text, html
 
 
@@ -229,8 +247,10 @@ def send_to_registration(registration, kind, subject, body):
         }
 
         if kind == 'invite':
-            message.attach(
-                f'{event.slug}.ics', build_ics(event), 'text/calendar')
+            ics = build_ics(event)
+            if ics:
+                message.attach(
+                    f'{event.slug}.ics', ics, 'text/calendar')
 
         message.send(fail_silently=False)
 

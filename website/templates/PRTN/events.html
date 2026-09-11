@@ -28,7 +28,7 @@
             <div class="event-feature__image"
                  style="background-image: url('{% if event.cover_image %}{{ event.cover_image.url }}{% else %}{% static event.image_path %}{% endif %}');"
                  role="img" aria-label="{{ event.city }}{% if event.region %}, {{ event.region }}{% endif %}">
-                <div class="event-card__date">
+                <div class="event-card__date{% if event.date_tbd %} event-card__date--tbd{% endif %}">
                     <span>{{ event.month_abbr }}</span>
                     <strong>{{ event.day_number }}</strong>
                 </div>
@@ -50,10 +50,12 @@
                         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 3v4M17 3v4M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
                         <span>{{ event.local_date_text }}</span>
                     </div>
+                    {% if event.time_display or not event.date_tbd %}
                     <div class="meta-row">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
                         <span>{% if event.time_display %}{{ event.time_display }}{% else %}{{ event.local_time_text }}{% endif %}</span>
                     </div>
+                    {% endif %}
                     <div class="meta-row">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
                         <span>
@@ -84,7 +86,7 @@
                 <div class="event-card__image"
                      style="background-image: url('{% if event.cover_image %}{{ event.cover_image.url }}{% else %}{% static event.image_path %}{% endif %}');"
                      role="img" aria-label="{{ event.city }}{% if event.region %}, {{ event.region }}{% endif %}">
-                    <div class="event-card__date">
+                    <div class="event-card__date{% if event.date_tbd %} event-card__date--tbd{% endif %}">
                         <span>{{ event.month_abbr }}</span>
                         <strong>{{ event.day_number }}</strong>
                     </div>
@@ -100,10 +102,12 @@
                             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 3v4M17 3v4M3 9h18" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
                             <span>{{ event.local_date_text }}</span>
                         </div>
+                        {% if event.time_display or not event.date_tbd %}
                         <div class="meta-row">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
                             <span>{% if event.time_display %}{{ event.time_display }}{% else %}{{ event.local_time_text }}{% endif %}</span>
                         </div>
+                        {% endif %}
                         <div class="meta-row">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
                             <span>

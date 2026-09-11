@@ -18,6 +18,8 @@ TIMEZONES = [
     ('America/Los_Angeles', 'Pacific (PT)'),
 ]
 
+DATE_TBD_TEXT = 'Date to be announced'
+
 
 class ProfessionalSubmission(models.Model):
     first_name = models.CharField(max_length=100)
@@ -83,7 +85,13 @@ class Event(models.Model):
                   "If blank, falls back to static/images/<slug>.jpg",
     )
 
-    starts_at = models.DateTimeField()
+    starts_at = models.DateTimeField(
+        null=True, blank=True,
+        verbose_name='Start date & time',
+        help_text="Leave blank if the date isn't set yet. The event still "
+                  "shows as upcoming, marked 'Date to be announced'. "
+                  "Calendar invites can't be sent until a date is set.",
+    )
     timezone_name = models.CharField(
         max_length=50,
         choices=TIMEZONES,
@@ -95,8 +103,8 @@ class Event(models.Model):
     )
     time_display = models.CharField(
         max_length=100, blank=True,
-        help_text="Leave blank to show the time from starts_at. "
-                  "Set to 'Time coming soon' while TBD.",
+        help_text="Overrides the time shown on the site — e.g. "
+                  "'Time coming soon'. Leave blank to use the start time.",
     )
     duration_minutes = models.PositiveSmallIntegerField(
         default=120, help_text="Used to set the end time on calendar invites.")
@@ -134,10 +142,38 @@ class Event(models.Model):
     )
 
     class Meta:
+        # Postgres sorts NULLs last on ASC, so dated events come first
+        # and TBD events sit at the end of the upcoming list.
         ordering = ['starts_at']
 
     def __str__(self):
-        return f"{self.title} — {self.local_start:%b %d, %Y}"
+        if self.starts_at:
+            return f"{self.title} — {self.local_start:%b %d, %Y}"
+        return f"{self.title} — date TBD"
+
+    # ----------------------------------------------------------------------
+    # Scheduling state
+    # ----------------------------------------------------------------------
+
+    @property
+    def date_tbd(self):
+        return self.starts_at is None
+
+    @property
+    def is_upcoming(self):
+        """TBD events count as upcoming — they haven't happened yet."""
+        if self.date_tbd:
+            return True
+        return self.starts_at >= timezone.now()
+
+    @property
+    def is_past(self):
+        return not self.is_upcoming
+
+    @property
+    def can_send_calendar(self):
+        """Calendar invites need a real date."""
+        return not self.date_tbd
 
     # ----------------------------------------------------------------------
     # Timezone-aware display.
@@ -153,38 +189,48 @@ class Event(models.Model):
 
     @property
     def local_start(self):
+        if self.date_tbd:
+            return None
         return self.starts_at.astimezone(self.tz)
 
     @property
     def tz_abbr(self):
+        if self.date_tbd:
+            return ''
         return self.local_start.strftime('%Z')
 
     @property
     def local_date_text(self):
-        """e.g. 'Monday, August 31, 2026'"""
+        """e.g. 'Monday, August 31, 2026' — or the TBD message."""
+        if self.date_tbd:
+            return DATE_TBD_TEXT
         return self.local_start.strftime('%A, %B %-d, %Y')
 
     @property
     def local_time_text(self):
-        """e.g. '6:00 PM PDT'"""
+        """e.g. '6:00 PM PDT' — blank when the date is TBD."""
+        if self.date_tbd:
+            return ''
         return f"{self.local_start.strftime('%-I:%M %p')} {self.tz_abbr}"
 
     @property
     def local_short_date_text(self):
-        """e.g. 'August 31'"""
+        """e.g. 'August 31' — or 'Date TBA'."""
+        if self.date_tbd:
+            return 'Date TBA'
         return self.local_start.strftime('%B %-d')
 
     @property
     def month_abbr(self):
+        if self.date_tbd:
+            return 'DATE'
         return self.local_start.strftime('%b').upper()
 
     @property
     def day_number(self):
+        if self.date_tbd:
+            return 'TBA'
         return self.local_start.strftime('%d')
-
-    @property
-    def year_number(self):
-        return self.local_start.strftime('%Y')
 
     # ----------------------------------------------------------------------
 
@@ -192,14 +238,6 @@ class Event(models.Model):
     def image_path(self):
         """Static fallback path, used when no cover has been uploaded."""
         return f"images/{self.slug}.jpg"
-
-    @property
-    def is_upcoming(self):
-        return self.starts_at >= timezone.now()
-
-    @property
-    def is_past(self):
-        return not self.is_upcoming
 
     @property
     def photo_count(self):

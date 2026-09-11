@@ -15,7 +15,8 @@ def home(request):
     """Landing page view."""
     upcoming = Event.objects.filter(
         is_published=True,
-        starts_at__gte=timezone.now(),
+    ).filter(
+        Q(starts_at__gte=timezone.now()) | Q(starts_at__isnull=True)
     )[:2]
     return render(request, 'PRTN/home.html', {'upcoming_events': upcoming})
 
@@ -92,11 +93,12 @@ def join_the_network(request):
 
 
 def events(request):
-    """Events page — featured, upcoming, and past with photo galleries."""
+    """Events page — featured, upcoming (including TBD), and past."""
     now = timezone.now()
     published = Event.objects.filter(is_published=True)
  
-    upcoming = published.filter(starts_at__gte=now)
+    upcoming = published.filter(
+        Q(starts_at__gte=now) | Q(starts_at__isnull=True))
     past = (published.filter(starts_at__lt=now)
             .order_by('-starts_at')
             .prefetch_related('photos'))
@@ -106,7 +108,6 @@ def events(request):
         'events': upcoming.filter(is_featured=False),
         'past_events': past,
     })
-
 
 def event_register(request, slug):
     """RSVP form for a single event."""

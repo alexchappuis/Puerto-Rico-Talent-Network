@@ -13,7 +13,7 @@
         <p class="page-hero__text">
             {{ event.local_date_text }}
             {% if event.time_display %} &middot; {{ event.time_display }}
-            {% else %} &middot; {{ event.local_time_text }}{% endif %}
+            {% elif not event.date_tbd %} &middot; {{ event.local_time_text }}{% endif %}
             {% if event.venue %} &middot; {{ event.venue }}{% endif %}
         </p>
     </div>

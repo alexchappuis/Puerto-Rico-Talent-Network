@@ -274,13 +274,13 @@ class EventAdminForm(forms.ModelForm):
         cleaned = super().clean()
         starts_at = cleaned.get('starts_at')
         tz_name = cleaned.get('timezone_name')
-
+ 
         if starts_at and tz_name:
             if dj_timezone.is_aware(starts_at):
                 starts_at = dj_timezone.make_naive(
                     starts_at, dj_timezone.get_current_timezone())
             cleaned['starts_at'] = starts_at.replace(tzinfo=ZoneInfo(tz_name))
-
+ 
         return cleaned
 
 
@@ -349,10 +349,11 @@ class EventAdmin(admin.ModelAdmin):
     )
 
     def local_time_display(self, obj):
+        if obj.date_tbd:
+            return format_html('<span style="color:{};">Date TBA</span>', '#b45309')
         return f"{obj.local_start:%b %d, %Y · %-I:%M %p} {obj.tz_abbr}"
     local_time_display.short_description = 'Starts'
     local_time_display.admin_order_field = 'starts_at'
-
     def rsvp_count(self, obj):
         return obj.registrations.count()
     rsvp_count.short_description = 'RSVPs'
