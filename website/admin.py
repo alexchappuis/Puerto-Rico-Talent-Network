@@ -6,13 +6,14 @@ from django.contrib import admin, messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone as dj_timezone
+from django.utils.html import format_html
 
 from talent.services import (
     find_matches, promote_submission, promote_rsvp, reject_intake,
 )
 from .models import (
     ProfessionalSubmission, CompanySubmission,
-    Event, EventRegistration, EmailLog,
+    Event, EventPhoto, EventRegistration, EmailLog,
 )
 from .notifications import (
     send_blast, default_subject, default_body, render_message,
@@ -291,22 +292,43 @@ class EventRegistrationInline(admin.TabularInline):
     show_change_link = True
 
 
+class EventPhotoInline(admin.TabularInline):
+    model = EventPhoto
+    extra = 3
+    fields = ['thumb', 'image', 'caption', 'order']
+    readonly_fields = ['thumb']
+    ordering = ['order']
+    verbose_name_plural = 'Photos (shown in the gallery for past events)'
+ 
+    def thumb(self, obj):
+        if not obj.pk or not obj.image:
+            return '—'
+        return format_html(
+            '<img src="{}" style="height:60px;width:80px;'
+            'object-fit:cover;border-radius:4px;" />',
+            obj.image.url,
+        )
+    thumb.short_description = ''
+
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     form = EventAdminForm
     list_display = ['title', 'local_time_display', 'city', 'is_featured',
-                    'is_published', 'registration_open', 'rsvp_count']
+                    'is_published', 'photo_count', 'rsvp_count']
     list_filter = ['is_featured', 'is_published', 'registration_open',
                    'starts_at']
     prepopulated_fields = {'slug': ('title',)}
-    inlines = [EventRegistrationInline]
+    inlines = [EventPhotoInline, EventRegistrationInline]
     actions = [event_send_invite, event_send_reminder]
 
     fieldsets = (
         ('Details', {
-            'fields': ('title', 'slug', 'subtitle', 'description'),
-            'description': 'The slug also names the photo — slug "palo-alto" '
-                           'looks for static/images/palo-alto.jpg',
+        'fields': ('title', 'slug', 'subtitle', 'description',
+                   'cover_image', 'recap'),
+        'description': 'Recap is shown on the events page after the event '
+                       'has passed. Cover image falls back to '
+                       'static/images/<slug>.jpg if left blank.',
         }),
         ('When & Where', {
             'fields': ('starts_at', 'timezone_name', 'time_display',
@@ -334,6 +356,10 @@ class EventAdmin(admin.ModelAdmin):
     def rsvp_count(self, obj):
         return obj.registrations.count()
     rsvp_count.short_description = 'RSVPs'
+
+    def photo_count(self, obj):
+        return obj.photos.count() or '—'
+    photo_count.short_description = 'Photos'
 
 
 @admin.register(EventRegistration)

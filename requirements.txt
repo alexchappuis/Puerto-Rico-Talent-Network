@@ -3,5 +3,7 @@ gunicorn
 whitenoise
 dj-database-url
 psycopg2-binary
-python-dotenv
 requests
+Pillow
+django-storages
+boto3

@@ -92,15 +92,19 @@ def join_the_network(request):
 
 
 def events(request):
-    """Public events listing — upcoming, published events only."""
-    upcoming = Event.objects.filter(
-        is_published=True,
-        starts_at__gte=timezone.now(),
-    )
+    """Events page — featured, upcoming, and past with photo galleries."""
+    now = timezone.now()
+    published = Event.objects.filter(is_published=True)
+ 
+    upcoming = published.filter(starts_at__gte=now)
+    past = (published.filter(starts_at__lt=now)
+            .order_by('-starts_at')
+            .prefetch_related('photos'))
+ 
     return render(request, 'PRTN/events.html', {
         'featured': upcoming.filter(is_featured=True),
         'events': upcoming.filter(is_featured=False),
-        'has_any': upcoming.exists(),
+        'past_events': past,
     })
 
 

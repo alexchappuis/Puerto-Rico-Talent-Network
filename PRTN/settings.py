@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "storages",
     "website",
     "talent",
 ]
@@ -129,3 +130,40 @@ if not RESEND_API_KEY:
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+ 
+R2_BUCKET = os.environ.get('R2_BUCKET_NAME')
+ 
+if R2_BUCKET:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "bucket_name": R2_BUCKET,
+                "access_key": os.environ.get('R2_ACCESS_KEY_ID'),
+                "secret_key": os.environ.get('R2_SECRET_ACCESS_KEY'),
+                "endpoint_url": os.environ.get('R2_ENDPOINT_URL'),
+                "region_name": "auto",
+                "signature_version": "s3v4",
+                "default_acl": None,
+                "querystring_auth": False,
+                "file_overwrite": False,
+                "custom_domain": os.environ.get('R2_PUBLIC_DOMAIN'),
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }

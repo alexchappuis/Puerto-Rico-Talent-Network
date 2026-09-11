@@ -70,15 +70,18 @@ class CompanySubmission(models.Model):
 class Event(models.Model):
     title = models.CharField(max_length=200, help_text="e.g. 'Palo Alto, CA'")
     slug = models.SlugField(
-        unique=True,
-        help_text="URL fragment AND image filename. A matching file must exist "
-                  "at static/images/<slug>.jpg",
-    )
+        unique=True, help_text="URL fragment, e.g. 'palo-alto'.")
     subtitle = models.CharField(
         max_length=200, blank=True,
         default="An evening to network & connect",
     )
     description = models.TextField(blank=True)
+
+    cover_image = models.ImageField(
+        upload_to='events/covers/', blank=True, null=True,
+        help_text="Main photo for the event card. Landscape, roughly 1200x800. "
+                  "If blank, falls back to static/images/<slug>.jpg",
+    )
 
     starts_at = models.DateTimeField()
     timezone_name = models.CharField(
@@ -111,7 +114,6 @@ class Event(models.Model):
 
     is_published = models.BooleanField(default=False)
     registration_open = models.BooleanField(default=True)
-
     is_featured = models.BooleanField(
         default=False,
         verbose_name='Feature this event',
@@ -123,6 +125,12 @@ class Event(models.Model):
         help_text="Optional line shown only on featured events — e.g. "
                   "'Panel discussion with leaders from Puerto Rico's tech "
                   "ecosystem.'",
+    )
+
+    recap = models.TextField(
+        blank=True,
+        help_text="Shown instead of the description once the event has "
+                  "passed — a short note about how it went.",
     )
 
     class Meta:
@@ -145,27 +153,25 @@ class Event(models.Model):
 
     @property
     def local_start(self):
-        """Start time as clock time in the event's own timezone."""
         return self.starts_at.astimezone(self.tz)
 
     @property
     def tz_abbr(self):
-        """Short label like PDT or AST, correct for that date."""
         return self.local_start.strftime('%Z')
 
     @property
     def local_date_text(self):
-        """e.g. 'Monday, August 31, 2026' — safe in templates."""
+        """e.g. 'Monday, August 31, 2026'"""
         return self.local_start.strftime('%A, %B %-d, %Y')
 
     @property
     def local_time_text(self):
-        """e.g. '6:00 PM PDT' — safe in templates."""
+        """e.g. '6:00 PM PDT'"""
         return f"{self.local_start.strftime('%-I:%M %p')} {self.tz_abbr}"
 
     @property
     def local_short_date_text(self):
-        """e.g. 'August 31' — safe in templates."""
+        """e.g. 'August 31'"""
         return self.local_start.strftime('%B %-d')
 
     @property
@@ -177,13 +183,47 @@ class Event(models.Model):
         return self.local_start.strftime('%d')
 
     @property
+    def year_number(self):
+        return self.local_start.strftime('%Y')
+
+    # ----------------------------------------------------------------------
+
+    @property
     def image_path(self):
-        """Static path for this event's photo, derived from the slug."""
+        """Static fallback path, used when no cover has been uploaded."""
         return f"images/{self.slug}.jpg"
 
     @property
     def is_upcoming(self):
         return self.starts_at >= timezone.now()
+
+    @property
+    def is_past(self):
+        return not self.is_upcoming
+
+    @property
+    def photo_count(self):
+        return self.photos.count()
+
+
+class EventPhoto(models.Model):
+    """A photo from an event, shown in the gallery on the events page."""
+
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='photos')
+    image = models.ImageField(upload_to='events/photos/')
+    caption = models.CharField(max_length=200, blank=True)
+    order = models.PositiveSmallIntegerField(
+        default=0, help_text="Lower numbers appear first.")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'uploaded_at']
+        verbose_name = 'Event Photo'
+        verbose_name_plural = 'Event Photos'
+
+    def __str__(self):
+        return f"{self.event.title} — photo {self.pk}"
 
 
 class EventRegistration(models.Model):
