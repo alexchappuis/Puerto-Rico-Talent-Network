@@ -725,46 +725,20 @@ em {
     color: var(--red);
 }
 
-/* ==========================================================================
-   Mission (About page)
-   Replaces the old .about-mission block in styles.css
-   ========================================================================== */
-
-.mission {
-    padding: clamp(4rem, 8vw, 6.5rem) 0;
-}
-
-.mission__inner {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 0 var(--gutter);
-}
-
-.mission .section-label {
-    margin-bottom: 2.25rem;
-}
-
-/* --- Three mission statements --- */
-
-.mission__trio {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border-top: 1px solid var(--stone);
-    border-bottom: 1px solid var(--stone);
     margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
 }
-
+ 
 .mission__block {
     padding: 1.75rem 1.75rem 2.25rem 0;
     display: flex;
     flex-direction: column;
 }
-
+ 
 .mission__block + .mission__block {
     border-left: 1px solid var(--stone);
     padding-left: 1.75rem;
 }
-
+ 
 .mission__num {
     font-family: var(--font-body);
     font-size: 0.72rem;
@@ -772,7 +746,7 @@ em {
     letter-spacing: 0.12em;
     color: var(--red);
 }
-
+ 
 .mission__block p {
     margin-top: 1.35rem;
     font-family: var(--font-display);
@@ -781,16 +755,16 @@ em {
     line-height: 1.25;
     color: var(--navy-deep);
 }
-
+ 
 /* --- Heading, copy, and the detail card --- */
-
+ 
 .mission__lower {
     display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.95fr);
-    gap: clamp(2.5rem, 5vw, 4.5rem);
+    grid-template-columns: 1.4fr 1fr;
+    gap: clamp(2.5rem, 5vw, 4rem);
     align-items: start;
 }
-
+ 
 .mission__heading {
     font-family: var(--font-display);
     font-size: clamp(1.8rem, 3.4vw, 2.75rem);
@@ -798,40 +772,83 @@ em {
     color: var(--navy-deep);
     margin-bottom: 1.5rem;
 }
-
+ 
 .mission__text p {
     color: var(--slate);
-    font-size: 0.97rem;
+    font-size: 0.95rem;
     line-height: 1.8;
-    margin-bottom: 1.1rem;
+    margin-bottom: 1rem;
 }
-
+ 
+.mission__text p.mission__lead {
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--charcoal);
+    line-height: 1.8;
+}
+ 
 .mission__text p:last-child {
     margin-bottom: 0;
 }
-
-.mission__lead {
-    font-size: 1.1rem !important;
-    color: var(--charcoal) !important;
+ 
+/* --- Focus / Sectors / Approach card --- */
+ 
+.stat-block {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
-
+ 
+.stat-block__item {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--stone);
+}
+ 
+.stat-block__item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+ 
+.stat-block__label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.35rem;
+}
+ 
+.stat-block__value {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--navy-deep);
+    line-height: 1.3;
+}
+ 
+/* --- Responsive --- */
+ 
 @media (max-width: 900px) {
     .mission__trio,
     .mission__lower {
         grid-template-columns: 1fr;
     }
-
+ 
     .mission__block {
         padding: 1.5rem 0 1.75rem;
     }
-
+ 
     .mission__block + .mission__block {
         border-left: none;
         border-top: 1px solid var(--stone);
         padding-left: 0;
     }
 }
-
 /* ==========================================================================
    Founder Section
    ========================================================================== */
